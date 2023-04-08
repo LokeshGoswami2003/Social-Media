@@ -51,7 +51,6 @@ const loginController = async (req, res) => {
 
         const accessToken = generateAccessToken({
             _id: user._id,
-            email: user.email,
         });
 
         return res.json({ accessToken });
@@ -63,7 +62,7 @@ const loginController = async (req, res) => {
 //internal functions
 const generateAccessToken = (data) => {
     try {
-        const token = jwt.sign(data, "hhyugyugyufgtfo");
+        const token = jwt.sign(data, process.env.ACCESS_TOKEN_PRIVATE_KEY);
         return token;
     } catch (error) {
         console.log(error);
