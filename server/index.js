@@ -5,12 +5,19 @@ const authRouter = require("./routers/authRouter");
 const postsRouter = require("./routers/postsRouter");
 const morgan = require("morgan"); // use to show api hit
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
 
 dotenv.config({ path: "./config.env" });
 
 const app = express();
 
 //middlewares
+app.use(
+    cors({
+        origin: "http://localhost:3000",
+        credentials: true,
+    })
+);
 app.use(express.json());
 app.use(morgan("common"));
 app.use(cookieParser());
@@ -19,12 +26,11 @@ app.use(cookieParser());
 app.use("/auth", authRouter);
 app.use("/posts", postsRouter);
 
-// default
 app.get("/", (req, res) => {
-    res.status(200).send();
+    res.status(200).json({ message: "hi" });
 });
 
-const PORT = process.env.PORT || 4001;
+const PORT = process.env.PORT || 4000;
 dbConnect();
 app.listen(PORT, () => {
     console.log("Server Started on PORT ", PORT);
