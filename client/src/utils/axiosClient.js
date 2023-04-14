@@ -9,20 +9,22 @@ import {
 let baseURL = "http://localhost:4000";
 export const axiosClient = axios.create({
     baseURL,
+    withCredentials: true,
 });
 
 axiosClient.interceptors.request.use((request) => {
     const accessToken = getItem(KEY_ACCESS_TOKEN);
     request.headers[`Authorization`] = `Bearer ${accessToken}`;
+    return request;
 });
 
-axiosClient.interceptors.response.use(async (response) => {
-    const data = response.data;
+axiosClient.interceptors.response.use(async (respone) => {
+    const data = respone.data;
     if (data.status === "ok") {
         return data;
     }
 
-    const originalRequest = response.config;
+    const originalRequest = respone.config;
     const statusCode = data.statusCode;
     const error = data.error;
 

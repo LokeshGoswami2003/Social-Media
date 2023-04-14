@@ -33,8 +33,8 @@ const signupController = async (req, res) => {
                 user,
             })
         );
-    } catch (error) {
-        console.log(error);
+    } catch (err) {
+        console.log(err);
     }
 };
 
@@ -70,8 +70,8 @@ const loginController = async (req, res) => {
         res.cookie("jwt", refreshToken, { httpOnly: true, secure: true });
 
         return res.send(success(200, { accessToken }));
-    } catch (error) {
-        console.log(error);
+    } catch (err) {
+        console.log(err);
     }
 };
 
@@ -107,8 +107,8 @@ const generateAccessToken = (data) => {
             expiresIn: "45m",
         });
         return token;
-    } catch (error) {
-        console.log(error);
+    } catch (err) {
+        console.log(err);
     }
 };
 
