@@ -11,8 +11,7 @@ const createPostController = async (req, res) => {
     try {
         const { caption } = req.body;
         const owner = req._id;
-
-        const user = await User.findById(req._Id);
+        const user = await User.findById(owner);
         const post = await Post.create({
             owner,
             caption,
@@ -20,9 +19,32 @@ const createPostController = async (req, res) => {
         user.posts.push(post._id);
         await user.save();
 
-        return res.send(success(201, post));
+        return res.send(success(201, { post }));
     } catch (err) {
-        res.send(error(500, e.message));
+        return res.send(error(500, err.message));
+    }
+};
+
+const linkAndUnlikePost = async (req, res) => {
+    try {
+        const { postId } = req.body;
+        const curUserId = req._id;
+        const post = await Post.findById(postId);
+
+        if (!post) {
+            return res.send(error(404, "post not found"));
+        }
+        if (post.likes.includes(curUserId)) {
+            const index = post.likes.indxOf(curUserId);
+            post.likes.splice(index, 1);
+            await post.save();
+            return res.send(success(200, "post unliked"));
+        }
+        post.likes.push(curUserId);
+        await post.save();
+        return res.send(success(200, "post liked"));
+    } catch (err) {
+        return res.send(error(500, err.message));
     }
 };
 

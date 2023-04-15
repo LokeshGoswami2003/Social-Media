@@ -29,11 +29,7 @@ const signupController = async (req, res) => {
         // return res.status(201).json({
         //     user,
         // });
-        return res.send(
-            success(201, {
-                user,
-            })
-        );
+        return res.send(success(201, "user created successfills"));
     } catch (err) {
         return res.send(error(500, err.message));
     }
@@ -48,7 +44,7 @@ const loginController = async (req, res) => {
             return res.send(error(400, "All fields are required"));
         }
 
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email }).select("+password");
         if (!user) {
             return res.send(error(404, "user is not registered"));
             // return res.status(404).send("user is not registered");
