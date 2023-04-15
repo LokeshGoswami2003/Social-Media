@@ -5,9 +5,9 @@ const { error, success } = require("../utils/responseWrapper");
 
 const signupController = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { name, email, password } = req.body;
 
-        if (!email || !password) {
+        if (!email || !password || !name) {
             // return res.status(400).send("All fields are required");
             return res.send(error(400, "All fields are required"));
         }
@@ -21,6 +21,7 @@ const signupController = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const user = await User.create({
+            name,
             email,
             password: hashedPassword,
         });
@@ -34,7 +35,7 @@ const signupController = async (req, res) => {
             })
         );
     } catch (err) {
-        console.log(err);
+        return res.send(error(500, err.message));
     }
 };
 
@@ -71,7 +72,7 @@ const loginController = async (req, res) => {
 
         return res.send(success(200, { accessToken }));
     } catch (err) {
-        console.log(err);
+        return res.send(error(500, err.message));
     }
 };
 
