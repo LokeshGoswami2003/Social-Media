@@ -5,6 +5,9 @@ const { success, error } = require("../utils/responseWrapper");
 const createPostController = async (req, res) => {
     try {
         const { caption } = req.body;
+        if (!caption) {
+            return res.send(error(400, "caption is required"));
+        }
         const owner = req._id;
         const user = await User.findById(owner);
         const post = await Post.create({

@@ -60,16 +60,32 @@ const getMyPostsController = async (req, res) => {
         const curUserId = req._id;
         const allUserPosts = await Post.find({
             owner: curUserId,
-        });
+        }).populate("likes");
         return res.send(success(200, { allUserPosts }));
     } catch (err) {
         return res.send(error(500, err.message));
     }
 };
+
+const getUserPostsController = async (req, res) => {
+    try {
+        const userId = req.body.userId;
+        if (!userId) {
+            return res.send(error(400, "userid is required"));
+        }
+        const allUserPosts = await Post.find({
+            owner: userId,
+        }).populate("likes");
+        return res.send(success(200, { allUserPosts }));
+    } catch (err) {
+        return res.send(error(500, err.message));
+    }
+};
+
 module.exports = {
     followOrUnfollowUserController,
     getPostsOfFollowing,
     getMyPostsController,
     // delete My Profile
-    // get user Posts
+    getUserPostsController,
 };
