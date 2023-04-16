@@ -55,7 +55,21 @@ const getPostsOfFollowing = async (req, res) => {
     }
 };
 
+const getMyPostsController = async (req, res) => {
+    try {
+        const curUserId = req._id;
+        const allUserPosts = await Post.find({
+            owner: curUserId,
+        });
+        return res.send(success(200, { allUserPosts }));
+    } catch (err) {
+        return res.send(error(500, err.message));
+    }
+};
 module.exports = {
     followOrUnfollowUserController,
     getPostsOfFollowing,
+    getMyPostsController,
+    // delete My Profile
+    // get user Posts
 };

@@ -72,6 +72,17 @@ const loginController = async (req, res) => {
     }
 };
 
+const logoutController = async (req, res) => {
+    try {
+        res.clearCookie("jwt", {
+            httpOnly: true,
+            secure: true,
+        });
+        return res.send(success(200, "user logged out"));
+    } catch (err) {
+        return res.send(error(500, e.message));
+    }
+};
 // this api will check the refresh token validity and generate a new access token
 const refreshAccessTokenController = async (req, res) => {
     const cookies = req.cookies;
@@ -124,4 +135,5 @@ module.exports = {
     signupController,
     loginController,
     refreshAccessTokenController,
+    logoutController,
 };
