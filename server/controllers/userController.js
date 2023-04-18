@@ -82,10 +82,57 @@ const getUserPostsController = async (req, res) => {
     }
 };
 
+const deleteMyProfile = async (req, res) => {
+    try {
+        const curUserId = req._id;
+        const curUser = await User.findById(curUserId);
+
+        // delete all posts
+        await Post.deleteMany({
+            owner: curUserId,
+        });
+
+        // remove myself from followers following
+        curUser.followers.forEach(async (followerId) => {
+            const follower = await User.findById(followerId);
+            const index = follower.followings.indexOf(curUserId);
+            follower.followings.splice(index, 1);
+            await follower.save();
+        });
+        // remove myself from my following followers
+        curUser.followings.forEach(async (followingId) => {
+            const following = await User.findById(followingId);
+            const index = following.followers.indexOf(curUserId);
+            following.followers.splice(index, 1);
+            await following.save();
+        });
+
+        // remove myself from all likes
+        const allPosts = await Post.find();
+        allPosts.forEach(async (post) => {
+            const index = post.likes.indexOf(curUserId);
+            post.likes.splice(index, 1);
+            await post.save();
+        });
+        // delete the user
+        await User.deleteOne({
+            _id: curUserId,
+        });
+
+        res.clearCookie("jwt", {
+            httpOnly: true,
+            secure: true,
+        });
+        return res.send(success(200, "user deleted"));
+    } catch (err) {
+        return res.send(500, err.message);
+    }
+};
+
 module.exports = {
     followOrUnfollowUserController,
     getPostsOfFollowing,
     getMyPostsController,
-    // delete My Profile
     getUserPostsController,
+    deleteMyProfile,
 };

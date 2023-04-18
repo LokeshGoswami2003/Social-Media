@@ -6,12 +6,7 @@ import {
     setItem,
 } from "./localStorageManager";
 
-let baseURL = "http://localhost:4000/";
-console.log("env is ", process.env.NODE_ENV);
-if (process.env.NODE_ENV === "production") {
-    baseURL = process.env.REACT_APP_SERVER_BASE_URL;
-}
-
+const baseURL = "http://localhost:4000";
 export const axiosClient = axios.create({
     baseURL,
     withCredentials: true,
@@ -19,7 +14,7 @@ export const axiosClient = axios.create({
 
 axiosClient.interceptors.request.use((request) => {
     const accessToken = getItem(KEY_ACCESS_TOKEN);
-    request.headers[`Authorization`] = `Bearer ${accessToken}`;
+    request.headers["Authorization"] = `Bearer ${accessToken}`;
     return request;
 });
 
@@ -31,21 +26,20 @@ axiosClient.interceptors.response.use(async (respone) => {
 
     const originalRequest = respone.config;
     const statusCode = data.statusCode;
-    const error = data.error;
+    const error = data.message;
 
     if (statusCode === 401 && !originalRequest._retry) {
         originalRequest._retry = true;
         const response = await axios
             .create({
-                baseURL,
                 withCredentials: true,
             })
             .get(`http://localhost:4000/auth/refresh`);
-        if (response.status === "ok") {
-            setItem(KEY_ACCESS_TOKEN, response.result.accessToken);
+        if (response.data.status === "ok") {
+            setItem(KEY_ACCESS_TOKEN, response.data.result.accessToken);
             originalRequest.headers[
-                `Authorization`
-            ] = `Bearer ${response.result.accessToken}`;
+                "Authorization"
+            ] = `Bearer ${response.data.result.accessToken}`;
             return axios(originalRequest);
         }
     } else {
@@ -53,6 +47,5 @@ axiosClient.interceptors.response.use(async (respone) => {
         window.location.replace("/login", "_self");
         return Promise.reject(error);
     }
-
     return Promise.reject(error);
 });
