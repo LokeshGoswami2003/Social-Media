@@ -129,10 +129,20 @@ const deleteMyProfile = async (req, res) => {
     }
 };
 
+const getMyInfo = async (req, res) => {
+    try {
+        const user = User.findById(req._id);
+        return res.send(success(200, { user }));
+    } catch (err) {
+        return res.send(500, err.message);
+    }
+};
+
 module.exports = {
     followOrUnfollowUserController,
     getPostsOfFollowing,
     getMyPostsController,
     getUserPostsController,
     deleteMyProfile,
+    getMyInfo,
 };

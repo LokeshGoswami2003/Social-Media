@@ -1,26 +1,19 @@
 import React, { useRef, useState } from "react";
 import "./Navbar.scss";
 import { useNavigate } from "react-router";
-import LoadingBar from "react-top-loading-bar";
 import Avatar from "../avatar/Avatar";
 import { AiOutlineLogout } from "react-icons/ai";
+import { useDispatch } from "react-redux";
+import { setLoading } from "../../redux/slices/appConfigSlice";
 function Navbar() {
     const navigate = useNavigate();
-    const loadingRef = useRef();
-    const [loading, setLoading] = useState(false);
+    const dispatch = useDispatch();
 
     function toggleLoadingBar() {
-        if (loading) {
-            setLoading(false);
-            loadingRef.current.complete();
-            return;
-        }
-        setLoading(true);
-        loadingRef.current.continuousStart();
+        dispatch(setLoading(true));
     }
     return (
         <div className="Navbar">
-            <LoadingBar color="#5f9fff" ref={loadingRef} />
             <div className="container">
                 <h2 className="banner hover-link" onClick={() => navigate("/")}>
                     Social Media
