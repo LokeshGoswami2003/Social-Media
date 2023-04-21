@@ -6,7 +6,9 @@ function Home() {
     return (
         <React.Fragment>
             <Navbar />
-            <Outlet />
+            <div className="outlet" style={{ marginTop: "60px" }}>
+                <Outlet />
+            </div>
         </React.Fragment>
     );
 }

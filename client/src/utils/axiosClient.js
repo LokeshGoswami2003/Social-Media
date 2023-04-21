@@ -8,7 +8,7 @@ import {
 
 const baseURL = "http://localhost:4000";
 export const axiosClient = axios.create({
-    baseURL,
+    baseURL: process.env.REACT_APP_SERVER_BASE_URL,
     withCredentials: true,
 });
 
@@ -34,7 +34,7 @@ axiosClient.interceptors.response.use(async (respone) => {
             .create({
                 withCredentials: true,
             })
-            .get(`http://localhost:4000/auth/refresh`);
+            .get(`${baseURL}/auth/refresh`);
         if (response.data.status === "ok") {
             setItem(KEY_ACCESS_TOKEN, response.data.result.accessToken);
             originalRequest.headers[
