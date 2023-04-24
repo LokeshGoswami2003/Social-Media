@@ -1,16 +1,21 @@
-import React, { useRef, useState } from "react";
+import React from "react";
 import "./Navbar.scss";
 import { useNavigate } from "react-router";
 import Avatar from "../avatar/Avatar";
 import { AiOutlineLogout } from "react-icons/ai";
-import { useDispatch } from "react-redux";
-import { setLoading } from "../../redux/slices/appConfigSlice";
+import { useSelector } from "react-redux";
+import { axiosClient } from "../../utils/axiosClient";
+import { KEY_ACCESS_TOKEN, removeItem } from "../../utils/localStorageManager";
 function Navbar() {
     const navigate = useNavigate();
-    const dispatch = useDispatch();
+    const myProfile = useSelector((state) => state.appConfigReducer.myProfile);
 
-    function toggleLoadingBar() {
-        dispatch(setLoading(true));
+    async function handleLogoutClicked() {
+        try {
+            await axiosClient.post("/auth/logout");
+            removeItem(KEY_ACCESS_TOKEN);
+            navigate("/login");
+        } catch (e) {}
     }
     return (
         <div className="Navbar">
@@ -21,13 +26,13 @@ function Navbar() {
                 <div className="right-side">
                     <div
                         className="profile hover-link"
-                        onClick={() => navigate("/profile/dummy")}
+                        onClick={() => navigate(`/profile/${myProfile?._id}`)}
                     >
-                        <Avatar />
+                        <Avatar src={myProfile?.avatar?.url} />
                     </div>
                     <div
                         className="logout hover-link"
-                        onClick={toggleLoadingBar}
+                        onClick={handleLogoutClicked}
                     >
                         <AiOutlineLogout />
                     </div>

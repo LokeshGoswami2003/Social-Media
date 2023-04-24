@@ -16,5 +16,7 @@ router.get("/getMyPosts", requireUser, userController.getMyPostsController);
 router.get("/getUserPosts", requireUser, userController.getUserPostsController);
 router.delete("/", requireUser, userController.deleteMyProfile);
 router.get("/getMyInfo", requireUser, userController.getMyInfo);
+router.put("/", requireUser, userController.updateUserProfile);
+router.get("/getUserProfile", requireUser, userController.getUserProfile);
 
 module.exports = router;

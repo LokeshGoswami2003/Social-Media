@@ -1,6 +1,8 @@
 const Post = require("../models/Post");
 const User = require("../models/User");
+const { mapPostOutput } = require("../utils/Utils");
 const { error, success } = require("../utils/responseWrapper");
+const cloudinary = require("cloudinary").v2;
 
 const followOrUnfollowUserController = async (req, res) => {
     try {
@@ -125,16 +127,68 @@ const deleteMyProfile = async (req, res) => {
         });
         return res.send(success(200, "user deleted"));
     } catch (err) {
-        return res.send(500, err.message);
+        return res.send(error(500, err.message));
     }
 };
 
 const getMyInfo = async (req, res) => {
     try {
-        const user = User.findById(req._id);
+        const user = await User.findById(req._id);
         return res.send(success(200, { user }));
     } catch (err) {
-        return res.send(500, err.message);
+        return res.send(error(500, err.message));
+    }
+};
+
+const updateUserProfile = async (req, res) => {
+    try {
+        const { name, bio, userImg } = req.body;
+        const user = await User.findById(req._id);
+        if (name) {
+            user.name = name;
+        }
+        if (bio) {
+            user.bio = bio;
+        }
+        if (userImg) {
+            const cloudImg = await cloudinary.uploader.upload(userImg, {
+                folder: "profileImg",
+            });
+            user.avatar = {
+                url: cloudImg.secure_url,
+                publicId: cloudImg.public_id,
+            };
+        }
+        await user.save();
+        return res.send(success(200, { user }));
+    } catch (err) {
+        return res.send(error(500, err.message));
+    }
+};
+
+const getUserProfile = async (req, res) => {
+    try {
+        const userId = req.body.userId;
+        const user = User.findById(userId).populate({
+            path: "posts",
+            populate: {
+                path: "owner",
+            },
+        });
+
+        const fullPosts = user.posts;
+        const posts = fullPosts
+            .map((item) => mapPostOutput(item, req._id))
+            .reverse();
+
+        return res.send(
+            success(200, {
+                ...user.doc,
+                posts,
+            })
+        );
+    } catch (err) {
+        return res.send(error(500, err.message));
     }
 };
 
@@ -145,4 +199,6 @@ module.exports = {
     getUserPostsController,
     deleteMyProfile,
     getMyInfo,
+    updateUserProfile,
+    getUserProfile,
 };
