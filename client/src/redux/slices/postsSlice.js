@@ -3,9 +3,9 @@ import { axiosClient } from "../../utils/axiosClient";
 
 export const getUserProfile = createAsyncThunk(
     "user/getUserProfile",
-    async (body, thunkAPI) => {
+    async (body) => {
         try {
-            const response = await axiosClient.get(
+            const response = await axiosClient.post(
                 "/user/getUserProfile",
                 body
             );

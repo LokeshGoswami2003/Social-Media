@@ -169,7 +169,7 @@ const updateUserProfile = async (req, res) => {
 const getUserProfile = async (req, res) => {
     try {
         const userId = req.body.userId;
-        const user = User.findById(userId).populate({
+        const user = await User.findById(userId).populate({
             path: "posts",
             populate: {
                 path: "owner",
@@ -183,11 +183,12 @@ const getUserProfile = async (req, res) => {
 
         return res.send(
             success(200, {
-                ...user.doc,
+                ...user._doc,
                 posts,
             })
         );
     } catch (err) {
+        console.log(err);
         return res.send(error(500, err.message));
     }
 };

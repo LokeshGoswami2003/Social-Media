@@ -26,7 +26,7 @@ const appConfigSlice = createSlice({
     name: "appConfigSlice",
     initialState: {
         isLoading: false,
-        myProfile: null,
+        myProfile: {},
     },
     reducers: {
         setLoading: (state, action) => {

@@ -10,7 +10,7 @@ import { getUserProfile } from "../../redux/slices/postsSlice";
 function CreatePost() {
     const [postImg, setPostImg] = useState("");
     const [caption, setCaption] = useState("");
-    // const dispatch = useDispatch();
+    const dispatch = useDispatch();
     const myProfile = useSelector((state) => state.appConfigReducer.myProfile);
 
     const handleImageChange = (e) => {
@@ -32,11 +32,11 @@ function CreatePost() {
                 postImg,
             });
             console.log("post done", result);
-            // dispatch(
-            //     getUserProfile({
-            //         userId: myProfile?._id,
-            //     })
-            // );
+            dispatch(
+                getUserProfile({
+                    userId: myProfile?._id,
+                })
+            );
         } catch (error) {
             console.log("what is th error", error);
         } finally {
