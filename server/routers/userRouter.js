@@ -13,7 +13,7 @@ router.get(
     userController.getPostsOfFollowing
 );
 router.get("/getMyPosts", requireUser, userController.getMyPostsController);
-router.get("/getUserPosts", requireUser, userController.getUserPostsController);
+router.get("/getFeedData", requireUser, userController.getPostsOfFollowing);
 router.delete("/", requireUser, userController.deleteMyProfile);
 router.get("/getMyInfo", requireUser, userController.getMyInfo);
 router.put("/", requireUser, userController.updateUserProfile);

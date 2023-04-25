@@ -19,7 +19,7 @@ function Profile() {
             })
         );
         setIsMyProfile(myProfile?._id === params.userId);
-    }, [myProfile, params.userId]);
+    }, [myProfile, params.userId, dispatch]);
 
     return (
         <div className="Profile">
@@ -27,7 +27,7 @@ function Profile() {
                 <div className="left-part">
                     <CreatePost />
                     {userProfile?.posts?.map((post) => (
-                        <Post key={post._id} post={post} /> 
+                        <Post key={post._id} post={post} />
                     ))}
                 </div>
                 <div className="right-part">

@@ -2,7 +2,7 @@ import React from "react";
 import Avatar from "../avatar/Avatar";
 import "./Post.scss";
 import { useDispatch } from "react-redux";
-import { AiOutlineHeart } from "react-icons/ai";
+import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import { likeAndUnlikePost } from "../../redux/slices/postsSlice";
 
 function Post({ post }) {
@@ -26,7 +26,14 @@ function Post({ post }) {
             </div>
             <div className="footer">
                 <div className="like" onClick={handlePostLiked}>
-                    <AiOutlineHeart />
+                    {post.isLiked ? (
+                        <AiFillHeart
+                            style={{ color: "red" }}
+                            className="icon"
+                        />
+                    ) : (
+                        <AiOutlineHeart className="icon" />
+                    )}
                     <h4>{`${post?.likesCount} likes`}</h4>
                 </div>
                 <p className="caption">{post?.caption}</p>

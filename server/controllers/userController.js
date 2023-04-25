@@ -45,13 +45,25 @@ const followOrUnfollowUserController = async (req, res) => {
 const getPostsOfFollowing = async (req, res) => {
     try {
         const curUserId = req._id;
-        const curUser = await User.findById(curUserId);
-        const posts = await Post.find({
+        const curUser = await User.findById(curUserId).populate("followings");
+        const fullPosts = await Post.find({
             owner: {
                 $in: curUser.followings,
             },
+        }).populate("owner");
+
+        const posts = fullPosts
+            .map((item) => mapPostOutput(item, req._id))
+            .reverse();
+
+        const followingsIds = curUser.followings.map((item) => item._id);
+        followingsIds.push(req._id);
+        const suggestions = await User.find({
+            _id: {
+                $nin: followingsIds,
+            },
         });
-        return res.send(success(200, posts));
+        return res.send(success(200, { ...curUser._doc, suggestions, posts }));
     } catch (err) {
         return res.send(error(500, err.message));
     }
