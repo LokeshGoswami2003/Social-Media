@@ -23,17 +23,15 @@ function Feed() {
                 <div className="right-part">
                     <div className="following">
                         <h3 className="title">You Are Following</h3>
-                        <Follower />
-                        <Follower />
-                        <Follower />
-                        <Follower />
+                        {feedData?.followings?.map((user) => (
+                            <Follower key={user._id} user={user} />
+                        ))}
                     </div>
                     <div className="suggestions">
                         <h3 className="title">Suggessted For You</h3>
-                        <Follower />
-                        <Follower />
-                        <Follower />
-                        <Follower />
+                        {feedData?.suggestions?.map((user) => (
+                            <Follower key={user._id} user={user} />
+                        ))}
                     </div>
                 </div>
             </div>
