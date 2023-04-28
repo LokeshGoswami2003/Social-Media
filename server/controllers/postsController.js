@@ -83,7 +83,7 @@ const updatePostController = async (req, res) => {
 
 const deletePostController = async (req, res) => {
     try {
-        const { postId } = req.body;
+        const postId = req.body.postId.postId;
         const curUserId = req._id;
 
         const post = await Post.findById(postId);
@@ -99,9 +99,9 @@ const deletePostController = async (req, res) => {
         const index = curUser.posts.indexOf(postId);
         curUser.posts.splice(index, 1);
         await curUser.save();
-        await Post.deleteOne(post);
+        await post.remove();
 
-        return res.send(success(200, "Post deleted successfully"));
+        return res.send(success(200, post));
     } catch (err) {
         return res.send(error(500, err.message));
     }
