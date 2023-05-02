@@ -9,9 +9,19 @@ function Signup() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
+    var pattern = "^w+@[a-zA-Z_]+?.[a-zA-Z]{2,3}$";
+
+    function isEmailAddress(str) {
+        str = "azamsharp@gmail.com";
+
+        alert(str.match(pattern));
+        return str.match(pattern);
+    }
+
     async function handleSubmit(e) {
         e.preventDefault();
         try {
+            isEmailAddress(email);
             const result = await axiosClient.post("/auth/signup", {
                 name,
                 email,
