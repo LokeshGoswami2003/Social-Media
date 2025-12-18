@@ -12,3 +12,4 @@ account -> ec2 Instance -> install nvm node pm2 ->
 └── app3/ (future) // file dirctory
 
 then will clone git clone social media inside apps ..
+then go inside server add nano config.env then install npm i then start server if all good then stop it and do it with pm2
