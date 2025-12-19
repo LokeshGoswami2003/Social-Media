@@ -1,0 +1,72 @@
+name: Deploy Social Media App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      # -------- FRONTEND BUILD --------
+      - name: Install client dependencies
+        working-directory: client
+        run: npm install
+
+      - name: Build React app
+        working-directory: client
+        run: npm run build
+
+      # -------- BACKEND PREP --------
+      - name: Install server dependencies
+        working-directory: server
+        run: npm install
+
+      # -------- DEPLOY TO EC2 --------
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            mkdir -p /home/ubuntu/apps/Social-Media/build
+            mkdir -p /home/ubuntu/apps/Social-Media/server
+
+      - name: Upload frontend build
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "client/build/*"
+          target: "/home/ubuntu/apps/Social-Media/build"
+
+      - name: Upload backend code
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "server/*"
+          target: "/home/ubuntu/apps/Social-Media/server"
+
+      - name: Restart backend with PM2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/apps/Social-Media/server
+            pm2 restart social-api || pm2 start index.js --name social-api
