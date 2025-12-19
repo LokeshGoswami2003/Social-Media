@@ -10,15 +10,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # -----------------------------
+      # 1. Checkout code
+      # -----------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # -----------------------------
+      # 2. Setup Node (CI machine)
+      # -----------------------------
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      # -------- FRONTEND BUILD --------
+      # -----------------------------
+      # 3. Build Frontend (CI side)
+      # -----------------------------
       - name: Install client dependencies
         working-directory: client
         run: npm install
@@ -27,22 +35,32 @@ jobs:
         working-directory: client
         run: npm run build
 
-      # -------- BACKEND PREP --------
+      # -----------------------------
+      # 4. Prepare Backend (CI side)
+      # -----------------------------
       - name: Install server dependencies
         working-directory: server
         run: npm install
 
-      # -------- DEPLOY TO EC2 --------
-      - name: Deploy to EC2
+      # -----------------------------
+      # 5. Prepare EC2 directories & ownership
+      # -----------------------------
+      - name: Prepare EC2 directories and permissions
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            mkdir -p /home/ubuntu/apps/Social-Media/build
-            mkdir -p /home/ubuntu/apps/Social-Media/server
+            sudo mkdir -p /home/ubuntu/apps/Social-Media/build
+            sudo mkdir -p /home/ubuntu/apps/Social-Media/server
 
+            # CI must be able to write
+            sudo chown -R ubuntu:ubuntu /home/ubuntu/apps/Social-Media
+
+      # -----------------------------
+      # 6. Upload Frontend Build
+      # -----------------------------
       - name: Upload frontend build
         uses: appleboy/scp-action@v0.1.4
         with:
@@ -53,6 +71,9 @@ jobs:
           target: "/home/ubuntu/apps/Social-Media/build"
           strip_components: 2
 
+      # -----------------------------
+      # 7. Upload Backend Code
+      # -----------------------------
       - name: Upload backend code
         uses: appleboy/scp-action@v0.1.4
         with:
@@ -62,15 +83,24 @@ jobs:
           source: "server/*"
           target: "/home/ubuntu/apps/Social-Media/server"
 
-      - name: Restart backend with PM2
+      # -----------------------------
+      # 8. Restart backend + fix runtime permissions
+      # -----------------------------
+      - name: Restart backend with PM2 and fix permissions
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            # Load Node & PM2 for non-interactive shell
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 
+            # Restart backend
             cd /home/ubuntu/apps/Social-Media/server
             pm2 restart social-api || pm2 start index.js --name social-api
+
+            # Give Nginx read access (runtime user)
+            sudo chown -R www-data:www-data /home/ubuntu/apps/Social-Media/build
+            sudo chmod -R 755 /home/ubuntu/apps/Social-Media/build
